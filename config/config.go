@@ -8,15 +8,17 @@ import (
 )
 
 var (
-	Token     string
-	BotPrefix string
-	Api       string
+	Token       string
+	BotPrefix   string
+	PriceApi    string
+	NetStatsApi string
 )
 
 type configStruct struct {
-	Token     string
-	BotPrefix string
-	Api       string
+	Token       string
+	BotPrefix   string
+	PriceApi    string
+	NetStatsApi string
 }
 
 func ReadConfig() error {
@@ -38,7 +40,8 @@ func ReadConfig() error {
 
 	Token = config.Token
 	BotPrefix = config.BotPrefix
-	Api = config.Api
+	PriceApi = config.PriceApi
+	NetStatsApi = config.NetStatsApi
 
 	return nil
 }

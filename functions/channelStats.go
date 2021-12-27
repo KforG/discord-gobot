@@ -11,7 +11,7 @@ import (
 )
 
 // some of the values are not used currently, so they're commented out to not waste memory space.
-type Response struct {
+type CoingeckoResponse struct {
 	MarketData struct {
 		CurrentPrice struct {
 			Btc float64 `json:"btc"`
@@ -58,37 +58,71 @@ type Response struct {
 }
 
 type ChannelID struct {
-	Price     string
-	MarketCap string
+	Price      string
+	MarketCap  string
+	NetHash    string
+	Difficulty string
 }
 
-func ChannelPriceRefresh(dg *discordgo.Session) {
+func UpdateChannelStats(dg *discordgo.Session) {
+	for {
+		channelPriceRefresh(dg)
+		channelNetworkStatsRefresh(dg)
+		time.Sleep(301 * time.Second) //Discord has rate-limited the number of times you can change channel names. Currently this is 1 request per 300 seconds.
+	}
 
+}
+
+func channelNetworkStatsRefresh(dg *discordgo.Session) error {
+	channel := ChannelID{
+		NetHash:    "917548632813764610",
+		Difficulty: "917547387784949830",
+	}
+
+	_, diff, err := util.GetNetworkStats()
+	if err != nil {
+		logging.Errorf("Error fetching netstatsinfo, skipping iteration... %s\n", err)
+		return err
+	}
+	logging.Infof("Fetched new netstats, updating channel names\n")
+
+	_, err = dg.ChannelEdit(channel.NetHash, fmt.Sprintf("NetHash: %0.2f GH/s", convertNethashToGiga(util.GetNethash(diff))))
+	if err != nil {
+		logging.Errorf("Error updating NetHash channel %s\n", err)
+	}
+	_, err = dg.ChannelEdit(channel.Difficulty, fmt.Sprintf("NetDiff: %0.2f", diff))
+	if err != nil {
+		logging.Errorf("Error updating Difficulty channel %s\n", err)
+	}
+
+	logging.Infof("NetStats channelnames update completed.. Sleeping for 5 minutes... \n")
+	return nil
+}
+
+func channelPriceRefresh(dg *discordgo.Session) error {
 	channel := ChannelID{
 		Price:     "919741562295037982",
 		MarketCap: "919741591407722626",
 	}
-	for {
-		jsonPayload := Response{}
-		err := util.GetJson(config.Api, &jsonPayload)
-		if err != nil {
-			logging.Errorf("Error fetching new data, skipping iteration... %s\n", err)
-			continue
-		}
-		logging.Infof("Fetched new price info, updating channel names\n")
-
-		_, err = dg.ChannelEdit(channel.Price, fmt.Sprintf("%s | %s", convertFiatPrice(jsonPayload.MarketData.CurrentPrice.Usd), convertBTCtoSats(jsonPayload.MarketData.CurrentPrice.Btc)))
-		if err != nil {
-			logging.Errorf("Error updating price channel %s\n", err)
-		}
-		_, err = dg.ChannelEdit(channel.MarketCap, fmt.Sprintf("%s | ₿%0.0f", convertFiatMC(jsonPayload.MarketData.MarketCap.Usd), jsonPayload.MarketData.MarketCap.Btc))
-		if err != nil {
-			logging.Errorf("Error updating marketcap channel %s\n", err)
-		}
-
-		logging.Infof("Channelname update completed.. Sleeping for 5 minutes... \n")
-		time.Sleep(301 * time.Second) //Discord has rate-limited the number of times you can change channel names. Currently this is 1 request per 300 seconds.
+	jsonPayload := CoingeckoResponse{}
+	err := util.GetJson(config.PriceApi, &jsonPayload)
+	if err != nil {
+		logging.Errorf("Error fetching new data, skipping iteration... %s\n", err)
+		return err
 	}
+	logging.Infof("Fetched new price info, updating channel names\n")
+
+	_, err = dg.ChannelEdit(channel.Price, fmt.Sprintf("%s | %s", convertFiatPrice(jsonPayload.MarketData.CurrentPrice.Usd), convertBTCtoSats(jsonPayload.MarketData.CurrentPrice.Btc)))
+	if err != nil {
+		logging.Errorf("Error updating price channel %s\n", err)
+	}
+	_, err = dg.ChannelEdit(channel.MarketCap, fmt.Sprintf("%s | ₿%0.0f", convertFiatMC(jsonPayload.MarketData.MarketCap.Usd), jsonPayload.MarketData.MarketCap.Btc))
+	if err != nil {
+		logging.Errorf("Error updating marketcap channel %s\n", err)
+	}
+
+	logging.Infof("PriceStats channelnames update completed.. Sleeping for 5 minutes... \n")
+	return nil
 }
 
 func convertBTCtoSats(btc float64) string {
@@ -103,4 +137,9 @@ func convertFiatPrice(fiat float64) string {
 func convertFiatMC(fiat int) string {
 	fiatMil := fiat / 1000000 //I'm just assuming the MC won't go above or below a billion
 	return fmt.Sprintf("MktCap: $%0.2dM", fiatMil)
+}
+
+func convertNethashToGiga(u uint64) float64 {
+	k := float64(u) / 1000000000
+	return k
 }

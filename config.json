@@ -1,5 +1,6 @@
 {
     "Token": "",
     "BotPrefix": "Bot ",
-    "API": "https://api.coingecko.com/api/v3/coins/vertcoin"
+    "API": "https://api.coingecko.com/api/v3/coins/vertcoin",
+    "NetStatsAPI": "https://ocm-backend.blkidx.org/info"
   }

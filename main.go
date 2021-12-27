@@ -46,7 +46,7 @@ func main() {
 	}
 	logging.Infof("We've logged in as %s\n", me)
 
-	go functions.ChannelPriceRefresh(dg) //Update channelname price/MC/etc
+	go functions.UpdateChannelStats(dg) //Update channelname price/MC/nethash/diff
 
 	// Hold up program for Go routines and exit gracefully
 	sc := make(chan os.Signal, 1)

@@ -12,8 +12,8 @@ import (
 
 func DetermineCommand(dg *discordgo.Session, message *discordgo.MessageCreate) {
 
-	if message.Author.ID == dg.State.User.ID {
-		return //If the message originates from ourselves there's no need to respond
+	if message.Author.Bot { //If the message originates from a bot there's no need to respond
+		return
 	}
 
 	message.Content = strings.ToLower(message.Content)

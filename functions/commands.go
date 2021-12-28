@@ -21,22 +21,22 @@ func DetermineCommand(dg *discordgo.Session, message *discordgo.MessageCreate) {
 	argument := strings.SplitN(message.Content, " ", len(message.Content))
 
 	switch {
-	case argument[0] == "?halving":
+	case argument[0] == "-halving":
 		respondHalving(dg, message)
 
-	case argument[0] == "?whyhalving":
+	case argument[0] == "-whyhalving":
 		respondWhyHalving(dg, message)
 
-	case argument[0] == "?ocm":
+	case argument[0] == "-ocm":
 		respondOCM(dg, message)
 
-	case argument[0] == "?vhm":
+	case argument[0] == "-vhm":
 		respondVHM(dg, message)
 
-	case argument[0] == "?block":
+	case argument[0] == "-block":
 		respondBlockHeight(dg, message)
 
-	case argument[0] == "?estearnings":
+	case argument[0] == "-estearnings":
 		respondEstimatedEarnings(dg, message, argument[1])
 
 	default:

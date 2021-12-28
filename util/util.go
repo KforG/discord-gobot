@@ -39,7 +39,7 @@ func GetJson(url string, target interface{}) error {
 	return nil
 }
 
-func TimeBeforeHalving(blocksRemain int) string {
+func TimeBeforeHalving(blocksRemain int64) string {
 	seconds := blocksRemain * 150
 
 	days := seconds / (3600 * 24)
@@ -56,6 +56,28 @@ func TimeBeforeHalving(blocksRemain int) string {
 		return fmt.Sprintf("%d hours %d minutes %d seconds", hours, minutes, seconds)
 	}
 	return fmt.Sprintf("%d minutes %d seconds", minutes, seconds)
+}
+
+func GetBlockReward(blockHeight int) (currentBlockReward, nextBlockReward float64) {
+	halvingInterval := 840000
+	initialBlockReward := 50
+
+	halvings := blockHeight / halvingInterval
+
+	if halvings >= 64 { //Vertcoin and Bitcoin will undergo 64 halvings before zero emission
+		return 0, 0
+	}
+	if halvings == 0 {
+		return float64(initialBlockReward), (float64(initialBlockReward) / 2)
+	}
+
+	currentBlockReward = float64(initialBlockReward) / 2
+
+	for i := 1; i < halvings; i++ {
+		currentBlockReward = currentBlockReward / 2
+	}
+
+	return currentBlockReward, (currentBlockReward / 2)
 }
 
 type NetStatsResponse struct {

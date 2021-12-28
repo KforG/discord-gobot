@@ -32,6 +32,8 @@ func main() {
 	}
 	logging.Infof("Successfully created new discord session \n")
 
+	dg.AddHandler(functions.DetermineCommand)
+
 	//Open websocket to Discord
 	err = dg.Open()
 	if err != nil {

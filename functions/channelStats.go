@@ -75,8 +75,8 @@ func UpdateChannelStats(dg *discordgo.Session) {
 
 func channelNetworkStatsRefresh(dg *discordgo.Session) error {
 	channel := ChannelID{
-		NetHash:    "917548632813764610",
-		Difficulty: "917547387784949830",
+		NetHash:    "925295761887997992",
+		Difficulty: "925295762257117184",
 	}
 
 	_, diff, err := util.GetNetworkStats()

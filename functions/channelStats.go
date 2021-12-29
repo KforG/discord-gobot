@@ -86,11 +86,17 @@ func channelNetworkStatsRefresh(dg *discordgo.Session) error {
 	}
 	logging.Infof("Fetched new netstats, updating channel names\n")
 
-	_, err = dg.ChannelEdit(channel.NetHash, fmt.Sprintf("NetHash: %0.2f GH/s", convertNethashToGiga(util.GetNethash(diff))))
+	_, err = dg.ChannelEditComplex(channel.NetHash, &discordgo.ChannelEdit{
+		Name:     fmt.Sprintf("NetHash: %0.2f GH/s", convertNethashToGiga(util.GetNethash(diff))),
+		Position: 2,
+	})
 	if err != nil {
 		logging.Errorf("Error updating NetHash channel %s\n", err)
 	}
-	_, err = dg.ChannelEdit(channel.Difficulty, fmt.Sprintf("NetDiff: %0.2f", diff))
+	_, err = dg.ChannelEditComplex(channel.Difficulty, &discordgo.ChannelEdit{
+		Name:     fmt.Sprintf("NetDiff: %0.2f", diff),
+		Position: 3,
+	})
 	if err != nil {
 		logging.Errorf("Error updating Difficulty channel %s\n", err)
 	}
@@ -112,11 +118,17 @@ func channelPriceRefresh(dg *discordgo.Session) error {
 	}
 	logging.Infof("Fetched new price info, updating channel names\n")
 
-	_, err = dg.ChannelEdit(channel.Price, fmt.Sprintf("%s | %s", convertFiatPrice(jsonPayload.MarketData.CurrentPrice.Usd), convertBTCtoSats(jsonPayload.MarketData.CurrentPrice.Btc)))
+	_, err = dg.ChannelEditComplex(channel.Price, &discordgo.ChannelEdit{
+		Name:     fmt.Sprintf("%s | %s", convertFiatPrice(jsonPayload.MarketData.CurrentPrice.Usd), convertBTCtoSats(jsonPayload.MarketData.CurrentPrice.Btc)),
+		Position: 0,
+	})
 	if err != nil {
 		logging.Errorf("Error updating price channel %s\n", err)
 	}
-	_, err = dg.ChannelEdit(channel.MarketCap, fmt.Sprintf("%s | ₿%0.0f", convertFiatMC(jsonPayload.MarketData.MarketCap.Usd), jsonPayload.MarketData.MarketCap.Btc))
+	_, err = dg.ChannelEditComplex(channel.MarketCap, &discordgo.ChannelEdit{
+		Name:     fmt.Sprintf("%s | ₿%0.0f", convertFiatMC(jsonPayload.MarketData.MarketCap.Usd), jsonPayload.MarketData.MarketCap.Btc),
+		Position: 1,
+	})
 	if err != nil {
 		logging.Errorf("Error updating marketcap channel %s\n", err)
 	}

@@ -101,7 +101,7 @@ func respondHalving(dg *discordgo.Session, message *discordgo.MessageCreate) {
 
 	halvings := blockHeight / int64(halvingInterval)
 
-	if halvings >= 64 { //Vertcoin and Bitcoin will undergo 64 halvings before zero emission
+	if halvings >= 32 { //Vertcoin and Bitcoin will undergo 32 halvings before zero emission
 		response := "Vertcoin has completed it's last halving and is no longer emitting coins"
 		_, err := dg.ChannelMessageSend(message.ChannelID, response)
 		if err != nil {

@@ -64,7 +64,7 @@ func GetBlockReward(blockHeight int) (currentBlockReward, nextBlockReward float6
 
 	halvings := blockHeight / halvingInterval
 
-	if halvings >= 64 { //Vertcoin and Bitcoin will undergo 64 halvings before zero emission
+	if halvings >= 32 { //Vertcoin and Bitcoin will undergo 32 halvings before zero emission
 		return 0, 0
 	}
 	if halvings == 0 {

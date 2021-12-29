@@ -51,7 +51,7 @@ func DetermineCommand(dg *discordgo.Session, message *discordgo.MessageCreate) {
 		//We need to check that there is something after the command
 		if len(argument) == 1 {
 			logging.Errorf("Command for -estearningsdetected, no hashrate argument supplied.. Sending error message to user.")
-			response := "No hashrate argument supplied \n?estearnings [hashrate in kH/s] is the correct syntax.\nExample: ``?estearnings 600``"
+			response := "No hashrate argument supplied \n-estearnings [hashrate in kH/s] is the correct syntax.\nExample: ``-estearnings 600``"
 			_, err := dg.ChannelMessageSendReply(message.ChannelID, response, message.Reference())
 			if err != nil {
 				logging.Errorf("error responding to estimated earnings error \n", err)
@@ -178,7 +178,7 @@ func respondEstimatedEarnings(dg *discordgo.Session, message *discordgo.MessageC
 	hashrate, err := strconv.ParseFloat(arg, 64)
 	if err != nil {
 		logging.Errorf("Error parsing argument in estimated earningscommand. argument (%s) may not be valid %s\n", arg, err)
-		response := "Invalid hashrate argument \n?estearnings [hashrate in kH/s] is the correct syntax.\nExample: ``?estearnings 600``"
+		response := "Invalid hashrate argument \n-estearnings [hashrate in kH/s] is the correct syntax.\nExample: ``-estearnings 600``"
 		_, err = dg.ChannelMessageSendReply(message.ChannelID, response, message.Reference())
 		if err != nil {
 			logging.Errorf("error responding to estimated earnings error \n", err)

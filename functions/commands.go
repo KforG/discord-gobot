@@ -15,12 +15,19 @@ func DetermineCommand(dg *discordgo.Session, message *discordgo.MessageCreate) {
 	if message.Author.Bot { //If the message originates from a bot there's no need to respond
 		return
 	}
-
+	logging.Infof("Message: %s\n", message.Content)
 	message.Content = strings.ToLower(message.Content)
+
+	if message.Content == "" { //If the message only contain an image, the content will be an empty string, which will cause a runtime error
+		return
+	}
 
 	argument := strings.SplitN(message.Content, " ", len(message.Content))
 
-	switch {
+	switch { //Remember to update -help command when a new command is added
+	case argument[0] == "-help":
+		respondHelp(dg, message)
+
 	case argument[0] == "-halving":
 		respondHalving(dg, message)
 
@@ -30,6 +37,9 @@ func DetermineCommand(dg *discordgo.Session, message *discordgo.MessageCreate) {
 	case argument[0] == "-ocm":
 		respondOCM(dg, message)
 
+	case argument[0] == "-verthash-ocm":
+		respondVerthashOCM(dg, message)
+
 	case argument[0] == "-vhm":
 		respondVHM(dg, message)
 
@@ -37,10 +47,40 @@ func DetermineCommand(dg *discordgo.Session, message *discordgo.MessageCreate) {
 		respondBlockHeight(dg, message)
 
 	case argument[0] == "-estearnings":
-		respondEstimatedEarnings(dg, message, argument[1])
+		// If no argument is given with the command, a runtime error will occur
+		//We need to check that there is something after the command
+		if len(argument) == 1 {
+			logging.Errorf("Command for -estearningsdetected, no hashrate argument supplied.. Sending error message to user.")
+			response := "No hashrate argument supplied \n?estearnings [hashrate in kH/s] is the correct syntax.\nExample: ``?estearnings 600``"
+			_, err := dg.ChannelMessageSendReply(message.ChannelID, response, message.Reference())
+			if err != nil {
+				logging.Errorf("error responding to estimated earnings error \n", err)
+			}
+		} else {
+			respondEstimatedEarnings(dg, message, argument[1])
+		}
 
 	default:
 		return
+	}
+}
+
+func respondHelp(dg *discordgo.Session, message *discordgo.MessageCreate) {
+	help := "• ``-help`` - Displays the help command you're currently seeing."
+	halving := "\n\n• ``-halving`` - Bot responds with the remaining blocks and a time estimate before the next halving."
+	whyhalving := "\n\n• ``-whyhalving`` - Bot responds with a message detailing why halvings takes place."
+	ocm := "\n\n• ``-ocm`` - Sends a link to the newest release of the Vertcoin One-Click-Miner."
+	vertocm := "\n\n• ``-verthash-ocm`` - Sends a link to the newest release of the Verthash One-Click-Miner."
+	vhm := "\n\n• ``-vhm`` - Sends a link to the newest release of Verthashminer."
+	block := "\n\n• ``-block`` - Bot sends a message with the current block height."
+	estearnings := "\n\n• ``-estearnings [hashrate in kH/s]`` - Bot will calculate the estimated number of VTC a miner will recieve per day with the supplied hashrate."
+	_, err := dg.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed{
+		Title:       "Commands",
+		Description: help + halving + whyhalving + ocm + vertocm + vhm + block + estearnings,
+		Color:       296535,
+	})
+	if err != nil {
+		logging.Errorf("error responding to help command\n", err)
 	}
 }
 
@@ -100,6 +140,14 @@ func respondOCM(dg *discordgo.Session, message *discordgo.MessageCreate) {
 	_, err := dg.ChannelMessageSend(message.ChannelID, response)
 	if err != nil {
 		logging.Errorf("error responding to OCM command\n", err)
+	}
+}
+
+func respondVerthashOCM(dg *discordgo.Session, message *discordgo.MessageCreate) {
+	response := "https://github.com/vertiond/verthash-one-click-miner/releases"
+	_, err := dg.ChannelMessageSend(message.ChannelID, response)
+	if err != nil {
+		logging.Errorf("error responding to Verthash-OCM command\n", err)
 	}
 }
 

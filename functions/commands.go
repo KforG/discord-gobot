@@ -15,13 +15,11 @@ func DetermineCommand(dg *discordgo.Session, message *discordgo.MessageCreate) {
 	if message.Author.Bot { //If the message originates from a bot there's no need to respond
 		return
 	}
-	logging.Infof("Message: %s\n", message.Content)
-	message.Content = strings.ToLower(message.Content)
-
 	if message.Content == "" { //If the message only contain an image, the content will be an empty string, which will cause a runtime error
 		return
 	}
-
+	
+	message.Content = strings.ToLower(message.Content)
 	argument := strings.SplitN(message.Content, " ", len(message.Content))
 
 	switch { //Remember to update -help command when a new command is added

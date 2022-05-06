@@ -7,6 +7,7 @@ import (
 
 	"github.com/KforG/discord-price-bot/config"
 	"github.com/KforG/discord-price-bot/functions"
+	"github.com/KforG/discord-price-bot/ccs"
 	"github.com/KforG/discord-price-bot/logging"
 	"github.com/bwmarrin/discordgo"
 )
@@ -49,6 +50,7 @@ func main() {
 	logging.Infof("We've logged in as %s\n", me)
 
 	go functions.UpdateChannelStats(dg) //Update channelname price/MC/nethash/diff
+	go ccs.UpdateCCSChannel(dg)	// Update CCS channel - Proposals looking for funding etc.
 
 	// Hold up program for Go routines and exit gracefully
 	sc := make(chan os.Signal, 1)

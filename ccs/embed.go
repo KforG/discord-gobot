@@ -8,7 +8,7 @@ import (
 )
 
 
-func createEmbed(Project Project) (*discordgo.MessageEmbed) {
+func createEmbed(Project *Project) (*discordgo.MessageEmbed) {
 	fields := []*discordgo.MessageEmbedField{
 		{
 			Name:   "Status",

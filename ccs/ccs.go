@@ -15,7 +15,8 @@ const channelID string = "959174405005668422"
 
 func UpdateCCSChannel(dg *discordgo.Session) {
 	for {
-		allProposals, err := getAllProposals()
+		allProposals := AllCCSProposals{}
+		err := getAllProposals(&allProposals)
 		if err != nil {
 			time.Sleep(301 * time.Second)
 			continue
@@ -148,18 +149,17 @@ type Message struct {
 
 //https://ccs.vertcoin.io/index.php/projects
 // This function fetches all merged projects from ccs.vertcoin.io
-func getAllProposals() (AllCCSProposals, error) {
-	jsonPayload := AllCCSProposals{}
-	err := util.GetJson("https://ccs.vertcoin.io/index.php/projects", &jsonPayload)
+func getAllProposals(jsonPayload *AllCCSProposals) error {
+	err := util.GetJson("https://ccs.vertcoin.io/index.php/projects", jsonPayload)
 	if err != nil {
 		logging.Errorf("Error fetching projects from ccs.vertcoin.io\n", err)
-		return jsonPayload, err
+		return err
 	}
-	return jsonPayload, nil
+	return nil
 }
 
 func createCCSMessage(Project Project, dg *discordgo.Session) Message {
-	message, err := dg.ChannelMessageSendEmbed(channelID, createEmbed(Project))
+	message, err := dg.ChannelMessageSendEmbed(channelID, createEmbed(&Project))
 	if err != nil {
 		logging.Errorf("error posting new CCS funding request\n", err)
 		return Message{}
@@ -174,7 +174,7 @@ func editCCSMessage(messageID string, Project Project, dg *discordgo.Session) er
 	_, err := dg.ChannelMessageEditComplex(&discordgo.MessageEdit{
 		ID:	messageID,
 		Channel: channelID,
-		Embed: createEmbed(Project),
+		Embed: createEmbed(&Project),
 	})
 	if err != nil {
 		logging.Errorf("error editing CCS message ID: %s\n", messageID, err)

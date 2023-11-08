@@ -40,12 +40,10 @@ func UpdateCCSChannel(dg *discordgo.Session) {
 					continue
 				} else {
 					logging.Infof("Editing existing message for %s with messageID: %s\n", allProposals.Proposal[i].Title, messageIDs[IDCounter].ID)
-					err = editCCSMessage(messageIDs[IDCounter].ID , allProposals.Proposal[i], dg)
+					err = editCCSMessage(messageIDs[IDCounter].ID, allProposals.Proposal[i], dg)
 					IDCounter++
 					if err != nil {
-						logging.Infof("Posting new message\n")
-						newMessage := createCCSMessage(allProposals.Proposal[i], dg)
-						messageIDs = append(messageIDs, newMessage)
+						logging.Warnf("Could not edit %s\n", messageIDs[IDCounter].ID)
 					}
 				}
 			}
@@ -62,12 +60,10 @@ func UpdateCCSChannel(dg *discordgo.Session) {
 					continue
 				} else {
 					logging.Infof("Editing existing message for %s with messageID: %s\n", allProposals.Proposal[i].Title, messageIDs[IDCounter].ID)
-					err = editCCSMessage(messageIDs[IDCounter].ID , allProposals.Proposal[i], dg)
+					err = editCCSMessage(messageIDs[IDCounter].ID, allProposals.Proposal[i], dg)
 					IDCounter++
 					if err != nil {
-						logging.Infof("Posting new message\n")
-						newMessage := createCCSMessage(allProposals.Proposal[i], dg)
-						messageIDs = append(messageIDs, newMessage)
+						logging.Warnf("Could not edit %s\n", messageIDs[IDCounter].ID)
 					}
 				}
 			}
@@ -84,17 +80,15 @@ func UpdateCCSChannel(dg *discordgo.Session) {
 					continue
 				} else {
 					logging.Infof("Editing existing message for %s with messageID: %s\n", allProposals.Proposal[i].Title, messageIDs[IDCounter].ID)
-					err = editCCSMessage(messageIDs[IDCounter].ID , allProposals.Proposal[i], dg)
+					err = editCCSMessage(messageIDs[IDCounter].ID, allProposals.Proposal[i], dg)
 					IDCounter++
 					if err != nil {
-						logging.Infof("Posting new message\n")
-						newMessage := createCCSMessage(allProposals.Proposal[i], dg)
-						messageIDs = append(messageIDs, newMessage)
+						logging.Warnf("Could not edit %s\n", messageIDs[IDCounter].ID)
 					}
 				}
 			}
 		}
-			
+
 		// Loop over IDEAS proposals
 		for i := 0; i < len(allProposals.Proposal); i++ {
 			if allProposals.Proposal[i].State == "IDEA" {
@@ -106,12 +100,10 @@ func UpdateCCSChannel(dg *discordgo.Session) {
 					continue
 				} else {
 					logging.Infof("Editing existing message for %s with messageID: %s\n", allProposals.Proposal[i].Title, messageIDs[IDCounter].ID)
-					err = editCCSMessage(messageIDs[IDCounter].ID , allProposals.Proposal[i], dg)
+					err = editCCSMessage(messageIDs[IDCounter].ID, allProposals.Proposal[i], dg)
 					IDCounter++
 					if err != nil {
-						logging.Infof("Posting new message\n")
-						newMessage := createCCSMessage(allProposals.Proposal[i], dg)
-						messageIDs = append(messageIDs, newMessage)
+						logging.Warnf("Could not edit %s\n", messageIDs[IDCounter].ID)
 					}
 				}
 			}
@@ -144,10 +136,10 @@ type Project struct {
 }
 
 type Message struct {
-	ID 		  string 	`json:"id"`
+	ID string `json:"id"`
 }
 
-//https://ccs.vertcoin.io/index.php/projects
+// https://ccs.vertcoin.io/index.php/projects
 // This function fetches all merged projects from ccs.vertcoin.io
 func getAllProposals(jsonPayload *AllCCSProposals) error {
 	err := util.GetJson("https://ccs.vertcoin.io/index.php/projects", jsonPayload)
@@ -172,9 +164,9 @@ func createCCSMessage(Project Project, dg *discordgo.Session) Message {
 
 func editCCSMessage(messageID string, Project Project, dg *discordgo.Session) error {
 	_, err := dg.ChannelMessageEditComplex(&discordgo.MessageEdit{
-		ID:	messageID,
+		ID:      messageID,
 		Channel: channelID,
-		Embed: createEmbed(&Project),
+		Embed:   createEmbed(&Project),
 	})
 	if err != nil {
 		logging.Errorf("error editing CCS message ID: %s\n", messageID, err)
